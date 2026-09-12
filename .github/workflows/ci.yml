@@ -32,3 +32,37 @@ jobs:
         run: uv run ruff check .
       - name: Test
         run: uv run pytest -n auto
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+      - name: Build image
+        run: docker build --tag clockrouter:test .
+      - name: Verify hardened runtime
+        env:
+          CLOCKROUTER_API_TOKEN: clockrouter-ci-token-not-for-production
+        run: |
+          set -euo pipefail
+          cleanup() { docker rm --force clockrouter-ci >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker image inspect clockrouter:test \
+            --format '{{json .Config.Healthcheck}}' | grep -q '127.0.0.1:4000/health'
+          docker run --detach --name clockrouter-ci \
+            --publish 127.0.0.1:4000:4000 \
+            --env CLOCKROUTER_API_TOKEN \
+            clockrouter:test
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4000/health >/dev/null; then
+              break
+            fi
+            if [[ "$attempt" == 30 ]]; then
+              docker logs clockrouter-ci
+              exit 1
+            fi
+            sleep 1
+          done
+          test "$(docker exec clockrouter-ci id -u)" != "0"
