@@ -81,4 +81,14 @@ The same commands are available as `make lint`, `make test`, and
 `make test-parallel`. Parallel workers run in isolated processes so global ASGI
 lifespans and event loops are not shared between tests.
 
+Install automatic commit and push validation once per clone:
+
+```bash
+bash scripts/install-hooks.sh
+```
+
+See [`docs/VALIDATION_AND_VERSIONING.md`](docs/VALIDATION_AND_VERSIONING.md) for
+the hook behavior, GitHub CI boundary, feature-branch workflow, version tags,
+recovery, and cost model.
+
 License: MIT
