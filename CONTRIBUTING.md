@@ -14,6 +14,7 @@ Before opening a pull request:
 uv sync --dev
 uv run ruff check .
 uv run pytest
+uv run pytest -n auto
 ```
 
 Never include credentials, prompt data, real request logs, `.env`, or databases
