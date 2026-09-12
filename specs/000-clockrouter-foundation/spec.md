@@ -30,6 +30,7 @@ rules remain enforceable independently of client behavior.
 - R4: Apply project cloud eligibility before selecting a route.
 - R5: Proxy streaming and non-streaming local responses.
 - R6: Default deployment exposure to localhost.
+- R7: Ignore ambient HTTP proxy variables so routing follows explicit configuration.
 
 ## Acceptance scenarios
 
@@ -48,8 +49,10 @@ Prompt bodies are not logged. This feature dispatches no paid cloud requests.
 | Date | Command/scenario | Result |
 |---|---|---|
 | 2026-09-12 | `uv run ruff check .` | Passed |
-| 2026-09-12 | `uv run pytest` | 2 passed |
+| 2026-09-12 | `uv run pytest` | 8 passed |
+| 2026-09-12 | `uv run pytest -n auto` | 8 passed across 9 workers |
 
 ## Change log
 
 - 2026-09-12: Foundation implemented and workflow documentation added.
+- 2026-09-12: Added API contract coverage and parallel test execution.
