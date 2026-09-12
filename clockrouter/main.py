@@ -16,7 +16,10 @@ settings = Settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.config = load_config(settings.config_dir)
-    app.state.client = httpx.AsyncClient(timeout=settings.request_timeout_seconds)
+    app.state.client = httpx.AsyncClient(
+        timeout=settings.request_timeout_seconds,
+        trust_env=False,
+    )
     yield
     await app.state.client.aclose()
 
