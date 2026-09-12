@@ -1,14 +1,28 @@
 from collections.abc import AsyncIterator
+from pathlib import Path
 
 import httpx
 import pytest
 import pytest_asyncio
+from pydantic import SecretStr
 
-from clockrouter.main import app
+from clockrouter.config import Settings, load_config
+from clockrouter.main import create_app
+
+TEST_TOKEN = "clockrouter-test-token-12345"
 
 
 @pytest_asyncio.fixture
 async def client() -> AsyncIterator[httpx.AsyncClient]:
+    app = create_app(
+        Settings(
+            api_token=SecretStr(TEST_TOKEN),
+            allowed_projects="private",
+            max_request_bytes=1_024,
+            max_output_tokens=100,
+        ),
+        load_config(Path("config")),
+    )
     async with app.router.lifespan_context(app):
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(
@@ -20,4 +34,4 @@ async def client() -> AsyncIterator[httpx.AsyncClient]:
 
 @pytest.fixture
 def auth_headers() -> dict[str, str]:
-    return {"Authorization": "Bearer change-me"}
+    return {"Authorization": f"Bearer {TEST_TOKEN}"}
