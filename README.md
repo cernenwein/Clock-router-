@@ -23,7 +23,7 @@ Test it:
 ```bash
 curl http://127.0.0.1:4000/health
 curl http://127.0.0.1:4000/v1/chat/completions \
-  -H 'Authorization: Bearer change-me' \
+  -H "Authorization: Bearer $CLOCKROUTER_API_TOKEN" \
   -H 'Content-Type: application/json' \
   -H 'X-ClockRouter-Project: private' \
   -d '{"model":"clock/auto","messages":[{"role":"user","content":"Hello"}]}'
@@ -46,9 +46,30 @@ credential to use it.
 - Projects marked `cloud_allowed: false` can only use local models.
 - `clock/auto` is deterministic in v0.1; no classifier sends requests elsewhere.
 - Provider keys remain on the ClockRouter host.
+- Local requests do not reserve or consume cloud budget.
+- Cloud requests reserve conservative estimated cost atomically before dispatch.
 
-See [`docs/ROADMAP.md`](docs/ROADMAP.md) for planned cloud routing, accounting,
-budgets, and escalation.
+## Local models
+
+`clock/local` targets the `local-coder` entry in `config/models.yaml`; the
+default URL is LM Studio on `host.docker.internal:1234`. When ClockRouter runs
+outside Docker, change that URL to the local model server address, commonly
+`http://127.0.0.1:1234/v1`. Local models require no pricing block, stay eligible
+for `cloud_allowed: false` projects, and write no charge to the budget ledger.
+
+`clock/auto` also selects a local model in the current deterministic router.
+Cloud fallback is not automatic.
+
+## Cloud budget controls
+
+Cloud models must declare exact input and output prices per million tokens.
+Global limits live in `config/budgets.yaml`, and SQLite state lives at
+`CLOCKROUTER_DATABASE_PATH` (default `data/clockrouter.db`). ClockRouter reserves
+the conservative estimate before making a cloud request and replaces it with
+actual cost only when a non-streaming provider response includes trustworthy
+token usage. Streaming and failed requests retain their conservative reservation.
+
+See [`docs/ROADMAP.md`](docs/ROADMAP.md) for planned providers and escalation.
 
 ## Spec-driven development
 
