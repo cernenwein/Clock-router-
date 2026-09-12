@@ -26,12 +26,12 @@ def select_route(config: Config, requested_model: str, project: str) -> Route:
     if virtual is None:
         raise RoutingError(f"Unknown virtual model: {requested_model}")
 
-    strategy = virtual.get("strategy")
+    strategy = virtual.strategy
     if strategy == "fixed":
-        target = virtual.get("target")
+        target = virtual.target
         reason = f"fixed route requested by {requested_model}"
     elif strategy == "auto":
-        local_names = [name for name, item in config.models.items() if not item.get("cloud")]
+        local_names = [name for name, item in config.models.items() if not item.cloud]
         if not local_names:
             raise RoutingError("No local model is configured")
         target = local_names[0]
@@ -43,15 +43,15 @@ def select_route(config: Config, requested_model: str, project: str) -> Route:
     if model is None:
         raise RoutingError(f"Route target is not configured: {target}")
 
-    cloud = bool(model.get("cloud", False))
-    if cloud and not policy.get("cloud_allowed", False):
+    cloud = model.cloud
+    if cloud and not policy.cloud_allowed:
         raise RoutingError(f"Cloud routing prohibited for project: {project}")
 
     return Route(
         name=target,
-        provider=model["provider"],
-        upstream_model=model["model"],
-        base_url=model["base_url"].rstrip("/"),
+        provider=model.provider,
+        upstream_model=model.model,
+        base_url=str(model.base_url).rstrip("/"),
         cloud=cloud,
         reason=reason,
     )
