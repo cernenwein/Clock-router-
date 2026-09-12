@@ -16,6 +16,10 @@ def config() -> Config:
                 "model": "premium",
                 "base_url": "https://example.invalid/v1",
                 "cloud": True,
+                "pricing": {
+                    "input_usd_per_million": "1.00",
+                    "output_usd_per_million": "2.00",
+                },
             },
         },
         virtual_models={
