@@ -8,5 +8,5 @@
 - [x] T006 Add normal and failure streaming cleanup behavior
 - [x] T007 Expand configuration, auth, request, transport, and stream tests
 - [x] T008 Harden Docker and Compose runtime
-- [ ] T009 Validate the Docker/Compose runtime on a host with Docker
+- [ ] T009 Validate the Docker/Compose runtime in GitHub CI
 - [x] T010 Update TODO, roadmap, and operational documentation
