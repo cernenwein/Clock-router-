@@ -7,4 +7,9 @@ services:
     volumes:
       - ./config:/app/config:ro
       - ./data:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
