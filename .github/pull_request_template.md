@@ -18,6 +18,7 @@ Describe behavior and boundaries, not only filenames.
 - [ ] Acceptance scenarios executed
 - [ ] `uv run ruff check .`
 - [ ] `uv run pytest`
+- [ ] `uv run pytest -n auto`
 - [ ] Spec evidence and task checkboxes updated
 
 ## Risks and rollback
