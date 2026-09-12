@@ -56,6 +56,8 @@ bash scripts/new-spec.sh "openrouter-provider"
 Then work through the gates described in
 [`docs/AI_DEVELOPMENT_WORKFLOW.md`](docs/AI_DEVELOPMENT_WORKFLOW.md). The current
 system is captured in [`specs/000-clockrouter-foundation`](specs/000-clockrouter-foundation/).
+See [`docs/BEST_PRACTICES.md`](docs/BEST_PRACTICES.md) for the primary sources
+behind the workflow and the rules ClockRouter adopts from each.
 
 ## OpenCode
 
