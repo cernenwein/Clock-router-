@@ -9,27 +9,27 @@ its spec acceptance evidence passes.
 
 ## P0 — harden before any cloud traffic
 
-- [ ] **T-001: Reject insecure API-token defaults at startup.**
+- [x] **T-001: Reject insecure API-token defaults at startup.**
   Create Spec 001. Production startup must reject an absent, blank, or
   `change-me` token. Tests must inject a dedicated test token rather than rely
   on the application default.
 
-- [ ] **T-002: Replace loose YAML dictionaries with validated configuration models.**
+- [x] **T-002: Replace loose YAML dictionaries with validated configuration models.**
   Validate provider, model, URL, strategy, target, project policy, timeout, and
   default-project references at startup. Unknown fields and unsafe cloud model
   configuration must fail closed with useful errors.
 
-- [ ] **T-003: Bind project authorization to client credentials.**
+- [x] **T-003: Bind project authorization to client credentials.**
   Possession of one gateway token must not let a caller claim any project name
   and thereby select a cloud-enabled policy. Define token-to-project scopes or
   an equally strong authorization mechanism before cloud routing exists.
 
-- [ ] **T-004: Normalize upstream failures without leaking content.**
+- [x] **T-004: Normalize upstream failures without leaking content.**
   Catch connection, DNS, timeout, TLS, malformed JSON, invalid content-type,
   disconnect, and streaming failures. Return stable OpenAI-shaped errors with a
   request ID; do not echo raw upstream bodies that may contain prompt data.
 
-- [ ] **T-005: Enforce request limits and schemas.**
+- [x] **T-005: Enforce request limits and schemas.**
   Validate the supported Chat Completions subset, cap request-body size and
   declared output tokens, reject unsupported fields deliberately, and test
   malformed JSON and oversized requests.
