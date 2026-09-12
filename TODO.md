@@ -107,6 +107,7 @@ its spec acceptance evidence passes.
 - [x] Non-streaming and SSE proxy paths.
 - [x] Serial and parallel test framework with eight baseline tests.
 - [x] Spec-driven workflow, constitution, ADRs, CI, and ecosystem survey.
+- [x] Local pre-commit/pre-push validation and version-preservation guide.
 
 ## Review observations behind this queue
 
