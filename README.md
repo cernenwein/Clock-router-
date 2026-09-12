@@ -60,6 +60,7 @@ See [`docs/BEST_PRACTICES.md`](docs/BEST_PRACTICES.md) for the primary sources
 behind the workflow and the rules ClockRouter adopts from each.
 See [`docs/ECOSYSTEM_SURVEY.md`](docs/ECOSYSTEM_SURVEY.md) before adding a router,
 provider, observability, or evaluation dependency.
+The prioritized engineering queue is maintained in [`TODO.md`](TODO.md).
 
 ## OpenCode
 
