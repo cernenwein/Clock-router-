@@ -12,7 +12,18 @@ in numbered `specs/` folders; roadmap bullets are not authorization to code.
 - LM Studio-compatible proxying and streaming
 - token authentication
 
-## v0.2 — controlled cloud
+## v0.2 — gateway hardening
+
+- validated configuration models
+- credential-to-project authorization
+- safe upstream error normalization
+- bounded request validation
+- cancellation and failure-path tests
+- non-root, health-checked container
+
+Tracking spec: create `specs/001-gateway-hardening/` before implementation.
+
+## v0.3 — controlled cloud
 
 - OpenRouter provider adapter
 - SQLite usage accounting
@@ -20,9 +31,9 @@ in numbered `specs/` folders; roadmap bullets are not authorization to code.
 - per-request, daily, and monthly budget enforcement
 - structured JSON request logs without prompt bodies
 
-Tracking spec: create `specs/001-controlled-cloud/` before implementation.
+Tracking spec: create `specs/002-controlled-cloud/` before implementation.
 
-## v0.3 — safe escalation
+## v0.4 — safe escalation
 
 - explicit escalation chains
 - retry only on defined transport, context, or structured-output failures
