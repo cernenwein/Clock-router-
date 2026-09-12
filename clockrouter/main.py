@@ -75,7 +75,9 @@ async def chat_completions(
         if upstream.is_error:
             content = await upstream.aread()
             await upstream.aclose()
-            return JSONResponse(status_code=upstream.status_code, content={"detail": content.decode()})
+            return JSONResponse(
+                status_code=upstream.status_code, content={"detail": content.decode()}
+            )
 
         async def chunks():
             try:
@@ -91,7 +93,9 @@ async def chat_completions(
             headers={"X-ClockRouter-Request-ID": request_id, "X-ClockRouter-Route": route.name},
         )
 
-    upstream = await request.app.state.client.post(upstream_url, headers=headers, json=upstream_body)
+    upstream = await request.app.state.client.post(
+        upstream_url, headers=headers, json=upstream_body
+    )
     response = JSONResponse(status_code=upstream.status_code, content=upstream.json())
     response.headers["X-ClockRouter-Request-ID"] = request_id
     response.headers["X-ClockRouter-Route"] = route.name
