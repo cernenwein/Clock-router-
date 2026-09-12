@@ -16,6 +16,7 @@ Describe behavior and boundaries, not only filenames.
 ## Verification
 
 - [ ] Acceptance scenarios executed
+- [ ] `uv run ruff format --check .`
 - [ ] `uv run ruff check .`
 - [ ] `uv run pytest`
 - [ ] `uv run pytest -n auto`
