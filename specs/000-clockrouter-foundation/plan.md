@@ -17,8 +17,10 @@ selects a route, substitutes the upstream model name, and proxies via `httpx`.
 ## Test strategy
 
 Unit tests cover deterministic local selection and hard private-project denial.
-API contract and streaming integration coverage are deferred to the first
-hardening spec.
+FastAPI contract tests cover health, authentication, virtual model discovery,
+unknown-project denial, upstream model rewriting, route metadata, and SSE byte
+forwarding. `pytest-xdist` verifies that the suite can run in isolated parallel
+worker processes without shared event-loop or application-state collisions.
 
 ## Risks and rollback
 
