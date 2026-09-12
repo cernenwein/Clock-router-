@@ -1,5 +1,8 @@
 # Roadmap
 
+This file describes product direction. Approved implementation commitments live
+in numbered `specs/` folders; roadmap bullets are not authorization to code.
+
 ## v0.1 — local foundation
 
 - OpenAI-compatible chat-completions endpoint
@@ -16,6 +19,8 @@
 - input/output token and cost capture
 - per-request, daily, and monthly budget enforcement
 - structured JSON request logs without prompt bodies
+
+Tracking spec: create `specs/001-controlled-cloud/` before implementation.
 
 ## v0.3 — safe escalation
 
