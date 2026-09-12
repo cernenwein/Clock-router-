@@ -51,6 +51,16 @@ def test_request_id_is_idempotent(tmp_path: Path) -> None:
     assert ledger.total_microusd() == 100
 
 
+def test_finalize_replaces_conservative_reservation(tmp_path: Path) -> None:
+    ledger = BudgetLedger(tmp_path / "usage.db")
+    limits = BudgetLimits(1_000, 1_000, 1_000)
+    ledger.reserve("request-1", "public", "cloud", 100, limits)
+
+    ledger.finalize("request-1", 40)
+
+    assert ledger.total_microusd() == 40
+
+
 def test_concurrent_reservations_cannot_overspend(tmp_path: Path) -> None:
     database = tmp_path / "usage.db"
     limits = BudgetLimits(100, 500, 500)
