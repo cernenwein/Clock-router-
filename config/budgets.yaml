@@ -1,0 +1,7 @@
+budgets:
+  global:
+    daily_usd: 2.00
+    monthly_usd: 30.00
+    request_max_usd: 0.50
+
+# Budget enforcement arrives with cloud routing in v0.2.
