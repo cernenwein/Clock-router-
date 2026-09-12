@@ -1,0 +1,38 @@
+name: Feature specification
+description: Propose a ClockRouter behavior change before implementation
+title: "[Spec] "
+labels: ["spec"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user-visible problem should be solved?
+    validations:
+      required: true
+  - type: textarea
+    id: outcomes
+    attributes:
+      label: Outcomes and acceptance scenarios
+      description: Describe observable success and at least one denied path.
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Privacy, security, and spending boundaries
+      description: What may leave the host, be logged, or incur cloud cost?
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+      description: What is explicitly outside this feature?
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Readiness
+      options:
+        - label: I checked the roadmap and existing specs for overlap.
+          required: true
