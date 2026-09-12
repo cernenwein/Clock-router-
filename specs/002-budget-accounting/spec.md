@@ -1,6 +1,6 @@
 # Feature 002: Budget accounting
 
-- Status: Active
+- Status: Implemented
 - Owner: Clockwork
 - Created: 2026-09-12
 - Updated: 2026-09-12
@@ -54,10 +54,13 @@ overspend and can be reconciled after trustworthy provider usage arrives.
 
 | Date | Command/scenario | Result |
 |---|---|---|
-| 2026-09-12 | `uv run pytest tests/test_accounting.py` | 6 passed |
-| 2026-09-12 | `uv run pytest -n auto` | 30 passed across 9 workers |
+| 2026-09-12 | `uv run pytest tests/test_accounting.py` | 7 passed |
+| 2026-09-12 | `uv run pytest -n auto` | 37 passed across 9 workers |
+| 2026-09-12 | `uv run pytest` | 37 passed serially |
 
 ## Change log
 
 - 2026-09-12: Spec activated before adding any cloud adapter.
 - 2026-09-12: Atomic reservation ledger and concurrency coverage added.
+- 2026-09-12: Cloud pre-dispatch enforcement and usage reconciliation wired.
+- 2026-09-12: Acceptance evidence passed; spec implemented.
