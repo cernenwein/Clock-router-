@@ -111,3 +111,22 @@ class BudgetLedger:
                 "SELECT COALESCE(SUM(charged_microusd), 0) FROM reservations"
             ).fetchone()
         return int(row[0])
+
+    def finalize(self, request_id: str, actual_microusd: int) -> None:
+        if actual_microusd < 0:
+            raise ValueError("actual cost must be non-negative")
+        with self._connect() as connection:
+            cursor = connection.execute(
+                """
+                UPDATE reservations
+                SET charged_microusd = ?, status = 'completed'
+                WHERE request_id = ?
+                """,
+                (actual_microusd, request_id),
+            )
+            if cursor.rowcount != 1:
+                raise KeyError("unknown budget reservation")
+
+
+def usd_to_microusd(value: Decimal) -> int:
+    return math.ceil(value * Decimal(1000000))
