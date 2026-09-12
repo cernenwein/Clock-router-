@@ -40,6 +40,7 @@ Run the acceptance scenarios plus repository checks:
 ```bash
 uv run ruff check .
 uv run pytest
+uv run pytest -n auto
 ```
 
 Record command, result, and date in `spec.md`. A failed or skipped required check
