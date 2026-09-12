@@ -47,9 +47,7 @@ async def test_unknown_project_fails_closed(
 async def test_chat_rewrites_virtual_model_and_reports_route(
     client: httpx.AsyncClient, auth_headers: dict[str, str]
 ) -> None:
-    upstream = respx.post(
-        "http://host.docker.internal:1234/v1/chat/completions"
-    ).mock(
+    upstream = respx.post("http://host.docker.internal:1234/v1/chat/completions").mock(
         return_value=httpx.Response(
             200,
             json={
@@ -81,9 +79,7 @@ async def test_streaming_chat_proxies_sse_bytes(
     client: httpx.AsyncClient, auth_headers: dict[str, str]
 ) -> None:
     event = b'data: {"choices":[{"delta":{"content":"tick"}}]}\n\ndata: [DONE]\n\n'
-    upstream = respx.post(
-        "http://host.docker.internal:1234/v1/chat/completions"
-    ).mock(
+    upstream = respx.post("http://host.docker.internal:1234/v1/chat/completions").mock(
         return_value=httpx.Response(
             200,
             content=event,
