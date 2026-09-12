@@ -17,5 +17,9 @@ uv run pytest
 uv run pytest -n auto
 ```
 
+Run `bash scripts/install-hooks.sh` once per clone to enforce formatting, lint,
+lockfile integrity, whitespace, and parallel tests automatically. Full behavior
+and bypass policy are documented in `docs/VALIDATION_AND_VERSIONING.md`.
+
 Never include credentials, prompt data, real request logs, `.env`, or databases
 in issues, specs, commits, or test fixtures.
