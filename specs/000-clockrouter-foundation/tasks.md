@@ -7,4 +7,5 @@
 - [x] T005 Add token authentication and localhost-first Docker exposure
 - [x] T006 Add routing and privacy tests
 - [x] T007 Run lint and tests and record evidence
-- [ ] T008 Add API authentication and proxy contract integration tests
+- [x] T008 Add API authentication and proxy contract integration tests
+- [x] T009 Add isolated parallel test execution with `pytest-xdist`
