@@ -40,6 +40,23 @@ curl http://127.0.0.1:4000/v1/chat/completions \
 See [`docs/ROADMAP.md`](docs/ROADMAP.md) for planned cloud routing, accounting,
 budgets, and escalation.
 
+## Spec-driven development
+
+Every non-trivial change begins as a numbered folder under `specs/`. The folder
+contains the problem and acceptance criteria (`spec.md`), technical approach
+(`plan.md`), and executable work list (`tasks.md`). Agents must read
+[`AGENTS.md`](AGENTS.md) before modifying the repository.
+
+Start a feature from the template:
+
+```bash
+bash scripts/new-spec.sh "openrouter-provider"
+```
+
+Then work through the gates described in
+[`docs/AI_DEVELOPMENT_WORKFLOW.md`](docs/AI_DEVELOPMENT_WORKFLOW.md). The current
+system is captured in [`specs/000-clockrouter-foundation`](specs/000-clockrouter-foundation/).
+
 ## OpenCode
 
 Configure an OpenAI-compatible provider with base URL
