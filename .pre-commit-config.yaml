@@ -1,0 +1,46 @@
+minimum_pre_commit_version: "4.0.0"
+default_install_hook_types: [pre-commit, pre-push]
+fail_fast: true
+
+repos:
+  - repo: local
+    hooks:
+      - id: clockrouter-format
+        name: Ruff formatting
+        entry: uv run ruff format --check .
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      - id: clockrouter-lint
+        name: Ruff lint
+        entry: uv run ruff check .
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      - id: clockrouter-lock
+        name: Locked dependencies are current
+        entry: uv lock --check
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      - id: clockrouter-diff
+        name: No whitespace errors
+        entry: git diff --check --cached
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      - id: clockrouter-tests
+        name: Parallel test suite
+        entry: uv run pytest -n 2
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
