@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Literal
 
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
     request_timeout_seconds: float = Field(default=120, gt=0, le=600)
     max_request_bytes: int = Field(default=1_048_576, ge=1_024, le=20_971_520)
     max_output_tokens: int = Field(default=32_768, ge=1, le=1_000_000)
+    database_path: Path = Path("data/clockrouter.db")
 
     model_config = SettingsConfigDict(env_prefix="CLOCKROUTER_", env_file=".env")
 
@@ -33,17 +35,26 @@ class Settings(BaseSettings):
         return projects
 
 
+class PriceConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    input_usd_per_million: Decimal = Field(ge=0)
+    output_usd_per_million: Decimal = Field(ge=0)
+
+
 class ModelConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
     provider: str = Field(min_length=1)
     model: str = Field(min_length=1)
     base_url: HttpUrl
     cloud: bool = False
+    pricing: PriceConfig | None = None
 
     @model_validator(mode="after")
     def require_tls_for_cloud(self) -> "ModelConfig":
         if self.cloud and self.base_url.scheme != "https":
             raise ValueError("cloud model base_url must use HTTPS")
+        if self.cloud and self.pricing is None:
+            raise ValueError("cloud model requires pricing")
         return self
 
 
@@ -66,12 +77,20 @@ class ProjectPolicy(BaseModel):
     cloud_allowed: bool = False
 
 
+class BudgetConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    request_max_usd: Decimal = Field(default=Decimal("0.50"), ge=0)
+    daily_usd: Decimal = Field(default=Decimal("2.00"), ge=0)
+    monthly_usd: Decimal = Field(default=Decimal("30.00"), ge=0)
+
+
 class Config(BaseModel):
     model_config = ConfigDict(extra="forbid")
     models: dict[str, ModelConfig]
     virtual_models: dict[str, VirtualModelConfig]
     projects: dict[str, ProjectPolicy]
     default_project: str
+    budgets: BudgetConfig = Field(default_factory=BudgetConfig)
 
     @model_validator(mode="after")
     def validate_references(self) -> "Config":
@@ -100,11 +119,13 @@ def _read_yaml(path: Path) -> dict[str, Any]:
 def load_config(directory: Path) -> Config:
     model_data = _read_yaml(directory / "models.yaml")
     policy_data = _read_yaml(directory / "policies.yaml")
+    budget_data = _read_yaml(directory / "budgets.yaml")
     return Config.model_validate(
         {
             "models": model_data.get("models", {}),
             "virtual_models": model_data.get("virtual_models", {}),
             "projects": policy_data.get("projects", {}),
             "default_project": policy_data.get("default_project", "private"),
+            "budgets": budget_data.get("budgets", {}).get("global", {}),
         }
     )
