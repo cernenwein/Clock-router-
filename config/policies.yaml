@@ -1,0 +1,11 @@
+projects:
+  private:
+    cloud_allowed: false
+  personal:
+    cloud_allowed: false
+  opensource:
+    cloud_allowed: true
+  general:
+    cloud_allowed: true
+
+default_project: private
