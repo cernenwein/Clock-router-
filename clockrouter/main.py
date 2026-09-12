@@ -12,6 +12,13 @@ from fastapi import Depends, FastAPI, Header, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import ValidationError
 
+from clockrouter.accounting import (
+    BudgetExceeded,
+    BudgetLedger,
+    BudgetLimits,
+    estimate_cost_microusd,
+    usd_to_microusd,
+)
 from clockrouter.config import Config, Settings, load_config
 from clockrouter.routing import RoutingError, select_route
 from clockrouter.schemas import ChatCompletionRequest, error_payload
@@ -70,6 +77,7 @@ def create_app(
             names = ", ".join(sorted(unknown_scopes))
             raise ValueError(f"credential scope references unknown projects: {names}")
         application.state.settings = settings
+        application.state.ledger = BudgetLedger(settings.database_path)
         application.state.client = httpx.AsyncClient(
             timeout=settings.request_timeout_seconds,
             trust_env=False,
@@ -175,6 +183,41 @@ def create_app(
         upstream_url = f"{route.base_url}/chat/completions"
         headers = {"Content-Type": "application/json", "X-Request-ID": request_id}
 
+        pricing = request.app.state.config.models[route.name].pricing
+        if route.cloud:
+            if pricing is None:
+                return api_error(
+                    503,
+                    "Cloud model pricing is unavailable",
+                    "budget_error",
+                    "pricing_unavailable",
+                    request_id,
+                )
+            estimated_input_tokens = len(raw_body)
+            estimated_output_tokens = body.max_tokens or settings.max_output_tokens
+            estimate = estimate_cost_microusd(
+                estimated_input_tokens,
+                estimated_output_tokens,
+                pricing.input_usd_per_million,
+                pricing.output_usd_per_million,
+            )
+            budget = request.app.state.config.budgets
+            limits = BudgetLimits(
+                request_microusd=usd_to_microusd(budget.request_max_usd),
+                daily_microusd=usd_to_microusd(budget.daily_usd),
+                monthly_microusd=usd_to_microusd(budget.monthly_usd),
+            )
+            try:
+                request.app.state.ledger.reserve(request_id, project, route.name, estimate, limits)
+            except BudgetExceeded as exc:
+                return api_error(
+                    429,
+                    str(exc),
+                    "budget_error",
+                    "budget_exceeded",
+                    request_id,
+                )
+
         if body.stream:
             return await stream_completion(
                 request, upstream_url, headers, upstream_body, route.name, request_id
@@ -214,6 +257,26 @@ def create_app(
                 "invalid_upstream_response",
                 request_id,
             )
+
+        usage = content.get("usage") if isinstance(content, dict) else None
+        if route.cloud and pricing is not None and isinstance(usage, dict):
+            prompt_tokens = usage.get("prompt_tokens")
+            completion_tokens = usage.get("completion_tokens")
+            if (
+                isinstance(prompt_tokens, int)
+                and not isinstance(prompt_tokens, bool)
+                and prompt_tokens >= 0
+                and isinstance(completion_tokens, int)
+                and not isinstance(completion_tokens, bool)
+                and completion_tokens >= 0
+            ):
+                actual = estimate_cost_microusd(
+                    prompt_tokens,
+                    completion_tokens,
+                    pricing.input_usd_per_million,
+                    pricing.output_usd_per_million,
+                )
+                request.app.state.ledger.finalize(request_id, actual)
 
         response = JSONResponse(status_code=upstream.status_code, content=content)
         response.headers["X-ClockRouter-Request-ID"] = request_id
