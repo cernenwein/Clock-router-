@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -50,3 +51,27 @@ def test_cloud_model_requires_https() -> None:
                 "default_project": "public",
             }
         )
+
+
+def test_cloud_model_requires_pricing() -> None:
+    with pytest.raises(ValueError, match="requires pricing"):
+        Config.model_validate(
+            {
+                "models": {
+                    "cloud": {
+                        "provider": "cloud",
+                        "model": "model",
+                        "base_url": "https://cloud.example/v1",
+                        "cloud": True,
+                    }
+                },
+                "virtual_models": {"clock/cloud": {"strategy": "fixed", "target": "cloud"}},
+                "projects": {"general": {"cloud_allowed": True}},
+                "default_project": "general",
+            }
+        )
+
+
+def test_budget_values_are_loaded_as_exact_decimals() -> None:
+    config = load_config(Path("config"))
+    assert config.budgets.request_max_usd == Decimal("0.50")
