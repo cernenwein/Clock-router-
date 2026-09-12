@@ -73,6 +73,11 @@ when accessing LittleMac remotely.
 ```bash
 uv run ruff check .
 uv run pytest
+uv run pytest -n auto  # parallel worker processes
 ```
+
+The same commands are available as `make lint`, `make test`, and
+`make test-parallel`. Parallel workers run in isolated processes so global ASGI
+lifespans and event loops are not shared between tests.
 
 License: MIT
