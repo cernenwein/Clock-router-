@@ -1,0 +1,13 @@
+models:
+  local-coder:
+    provider: lmstudio
+    model: qwen-coder
+    base_url: http://host.docker.internal:1234/v1
+    cloud: false
+
+virtual_models:
+  clock/local:
+    strategy: fixed
+    target: local-coder
+  clock/auto:
+    strategy: auto
