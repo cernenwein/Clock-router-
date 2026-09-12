@@ -32,8 +32,7 @@ privacy or budget requirement.
 3. Write or update the implementation plan before editing production code.
 4. Work only on tasks marked `[ ]`; mark a task `[x]` only after verification.
 5. Keep changes focused. Record a new ADR for durable architectural choices.
-6. Run `uv run ruff check .`, `uv run pytest`, and `uv run pytest -n auto`
-   before claiming completion.
+6. Run `make validate` and `uv run pytest` before claiming completion.
 7. Update the spec's evidence table with commands and outcomes.
 
 Tiny typo or comment-only changes may skip a new spec, but must still respect
