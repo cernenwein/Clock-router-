@@ -1,7 +1,7 @@
 # ClockRouter TODO
 
 Last reviewed: 2026-09-12  
-Current baseline: v0.2 hardening, 30 tests passing serially and in parallel
+Current baseline: v0.2 hardening, 37 tests passing serially and in parallel
 
 This is the cross-spec queue. Detailed requirements, design, and completion
 evidence belong in numbered `specs/` folders. An item moves to `Done` only after
@@ -34,10 +34,11 @@ its spec acceptance evidence passes.
   declared output tokens, reject unsupported fields deliberately, and test
   malformed JSON and oversized requests.
 
-- [ ] **T-006: Add budget accounting before the first cloud adapter.**
+- [x] **T-006: Add budget accounting before the first cloud adapter.**
   Implement conservative pre-dispatch estimates plus per-request, daily, and
   monthly enforcement. Unknown price or token estimates must deny cloud use.
-  Spec 002 is active; its atomic SQLite reservation core and threaded tests are complete.
+  Spec 002 implements atomic reservations, typed prices, pre-dispatch denial,
+  reconciliation, local bypass, and threaded contention tests.
 
 ## P1 — reliability and operational safety
 
