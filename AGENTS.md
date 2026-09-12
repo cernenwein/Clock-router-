@@ -18,6 +18,7 @@ Read these in order before changing code:
 4. its `plan.md` and `tasks.md`
 5. relevant ADRs under `docs/adr/`
 6. `docs/BEST_PRACTICES.md` when changing APIs, security, logging, CI, or containers
+7. `docs/ECOSYSTEM_SURVEY.md` before adding routing/provider/telemetry dependencies
 
 If these disagree, stop and surface the conflict. Do not silently reinterpret a
 privacy or budget requirement.
