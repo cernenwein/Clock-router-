@@ -29,6 +29,16 @@ curl http://127.0.0.1:4000/v1/chat/completions \
   -d '{"model":"clock/auto","messages":[{"role":"user","content":"Hello"}]}'
 ```
 
+Generate a gateway token rather than using an example value:
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+`CLOCKROUTER_ALLOWED_PROJECTS` is a comma-separated credential scope. The
+default is `private`; listing a project in `policies.yaml` does not authorize a
+credential to use it.
+
 ## Current safety behavior
 
 - The service binds to localhost by default.
