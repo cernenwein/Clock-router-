@@ -4,4 +4,4 @@ budgets:
     monthly_usd: 30.00
     request_max_usd: 0.50
 
-# Budget enforcement arrives with cloud routing in v0.2.
+# Cloud reservations are committed atomically before provider dispatch.
