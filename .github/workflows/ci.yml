@@ -56,6 +56,7 @@ jobs:
           docker run --detach --name clockrouter-ci \
             --publish 127.0.0.1:4000:4000 \
             --env CLOCKROUTER_API_TOKEN \
+            --env CLOCKROUTER_DATABASE_PATH=/tmp/clockrouter.db \
             clockrouter:test
           for attempt in {1..30}; do
             if curl --fail --silent http://127.0.0.1:4000/health >/dev/null; then

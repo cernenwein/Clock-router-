@@ -4,9 +4,10 @@ from scripts.local_provider_harness import select_model, validate_local_url
 
 
 def test_loopback_url_is_allowed() -> None:
-    assert validate_local_url(
-        "http://127.0.0.1:1234/v1/", allow_private_network=False
-    ) == "http://127.0.0.1:1234/v1"
+    assert (
+        validate_local_url("http://127.0.0.1:1234/v1/", allow_private_network=False)
+        == "http://127.0.0.1:1234/v1"
+    )
 
 
 def test_private_network_requires_explicit_opt_in() -> None:
