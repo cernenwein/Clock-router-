@@ -1,6 +1,6 @@
 # ClockRouter TODO
 
-Last reviewed: 2026-09-12  
+Last reviewed: 2026-09-13  
 Current baseline: v0.2 hardening, 37 tests passing serially and in parallel
 
 This is the cross-spec queue. Detailed requirements, design, and completion
@@ -77,9 +77,9 @@ its spec acceptance evidence passes.
   Base contract cases on official OpenRouter examples. Keep credentials on the
   gateway and require project authorization plus budget checks before dispatch.
 
-- [ ] **T-014: Add SQLite accounting and migrations.**
-  Track non-sensitive request metadata, estimated/actual cost, and budget
-  windows. Test concurrent updates and crash-safe transactions.
+- [ ] **T-014: Add accounting migrations and operational lifecycle.**
+  Version the existing SQLite schema; add forward migrations, retention and
+  recovery policy, operational queries, and crash-safety tests.
 
 - [ ] **T-015: Add explicit retry and fallback policies.**
   Distinguish retry from escalation; apply privacy and budget eligibility on
@@ -111,16 +111,9 @@ its spec acceptance evidence passes.
 - [x] Spec-driven workflow, constitution, ADRs, CI, and ecosystem survey.
 - [x] Local pre-commit/pre-push validation and version-preservation guide.
 
-## Review observations behind this queue
+## Current review focus
 
-- `Settings.api_token` currently defaults to `change-me`.
-- Configuration is currently untyped nested dictionaries, so missing keys can
-  surface as runtime `KeyError` rather than startup validation errors.
-- A caller can currently choose any configured project through a header.
-- Upstream network exceptions and malformed non-streaming JSON are not mapped.
-- Streaming error responses currently echo the raw upstream body.
-- The API accepts an unbounded, unvalidated JSON object.
-- Transport logic is concentrated in the endpoint rather than provider adapters.
-- The container runs as root and CI actions use moving major-version tags.
-- There is no accounting, budget enforcement, structured telemetry, coverage
-  threshold, or static type-check gate yet.
+- Transport logic remains concentrated in the endpoint rather than provider adapters.
+- Failure-path and cancellation coverage is incomplete.
+- Structured telemetry, a coverage threshold, and a static type-check gate remain pending.
+- SQLite accounting exists, but schema migrations and lifecycle policy are not yet defined.
