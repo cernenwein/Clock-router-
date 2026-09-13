@@ -93,6 +93,20 @@ See [`docs/ECOSYSTEM_SURVEY.md`](docs/ECOSYSTEM_SURVEY.md) before adding a route
 provider, observability, or evaluation dependency.
 The prioritized engineering queue is maintained in [`TODO.md`](TODO.md).
 
+## Local provider harness
+
+Use the offline-safe harness to verify LM Studio or Ollama model discovery and
+a chat round trip through ClockRouter:
+
+```bash
+uv run python scripts/local_provider_harness.py --provider lmstudio --list-only
+uv run python scripts/local_provider_harness.py --provider ollama --list-only
+```
+
+See [`docs/LOCAL_PROVIDER_HARNESS.md`](docs/LOCAL_PROVIDER_HARNESS.md) for
+loopback, LittleMac/NetBird, and full gateway examples. Live inference is
+operator-initiated and never runs in GitHub CI.
+
 ## OpenCode
 
 Configure an OpenAI-compatible provider with base URL

@@ -39,7 +39,7 @@ repos:
 
       - id: clockrouter-tests
         name: Parallel test suite
-        entry: uv run pytest -n 2
+        entry: bash scripts/check-push.sh
         language: system
         pass_filenames: false
         always_run: true
