@@ -15,6 +15,13 @@ provider model list and calls the running ClockRouter gateway. A small push
 script owns lock and test gates. GitHub Actions runs for all pushed branches,
 giving review branches an independent result before a pull request is opened.
 
+A separate reference client under `examples/` uses the standard OpenAI Python
+SDK exactly as a coding harness would. It sends only a virtual ClockRouter model
+and project scope; provider selection remains inside the gateway. The OpenAI SDK
+is a development dependency because the gateway runtime continues to proxy with
+its existing `httpx` stack. Tests inject an in-process HTTP client so CI crosses
+the real ASGI gateway boundary without contacting a live provider.
+
 ## Files and interfaces
 
 | Path/interface | Change |
@@ -25,6 +32,10 @@ giving review branches an independent result before a pull request is opened.
 | `.pre-commit-config.yaml` | Delegate pre-push validation to the script |
 | `.github/workflows/ci.yml` | Validate every pushed branch and pull request |
 | `docs/LOCAL_PROVIDER_HARNESS.md` | LM Studio/Ollama operator workflow |
+| `docs/PYTHON_HARNESS.md` | Generic localhost coding-client workflow |
+| `examples/python_harness.py` | Reusable OpenAI SDK coding-harness client |
+| `tests/test_python_harness.py` | Offline SDK-to-gateway integration coverage |
+| `pyproject.toml` / `uv.lock` | OpenAI SDK development dependency |
 | workflow documents | Explain branch-first automated changes |
 
 ## Configuration and migration
@@ -34,10 +45,12 @@ the exact provider model ID in the existing `config/models.yaml`.
 
 ## Test strategy
 
-Unit-test URL eligibility and model selection. Existing API tests cover the
-gateway proxy. PR CI runs Ruff, the full parallel suite, Compose validation, and
-the hardened container test. Live provider checks remain manual acceptance
-evidence on LittleMac.
+Unit-test URL eligibility and model selection. Exercise the OpenAI SDK reference
+client through the real FastAPI application with a mocked local upstream, and
+assert project scope, virtual-model input, physical-model rewrite, safe trace
+headers, and returned text. PR CI runs Ruff, the full parallel suite, Compose
+validation, and the hardened container test. Live provider checks remain manual
+acceptance evidence on the private model host.
 
 ## Risks and rollback
 
