@@ -84,6 +84,58 @@ SKIP=clockrouter-format git commit -m "Repair formatter configuration"
 git commit --no-verify -m "Repair broken hook bootstrap"
 ```
 
+## Lockfile transaction strategy
+
+Treat a lockfile update as a transaction: the manifest, lockfile, validation
+evidence, and review branch must describe one intentional dependency state.
+
+### Version-only changes
+
+For a ClockRouter release that does not intentionally change dependencies:
+
+1. Start from a clean checkout of the target branch with its existing
+   `pyproject.toml` and `uv.lock`. Never regenerate from a reconstructed or
+   partial project.
+2. Record `uv --version`. Use the repository-approved uv version; changing the
+   resolver or lockfile serializer belongs in a separate tooling change.
+3. Change only ClockRouter's version in `pyproject.toml`.
+4. Run `uv lock` without `--upgrade`. Prefer `uv lock --offline` when the
+   required package metadata is already cached.
+5. Inspect `git diff -- pyproject.toml uv.lock`. The lockfile should normally
+   change only ClockRouter's editable package entry. New package versions,
+   hashes, wheel lists, sources, or resolution markers are unrelated churn.
+6. Run `uv lock --check` and the full validation suite.
+7. Push to a review branch and merge only after CI passes.
+
+If unrelated lockfile churn appears, stop. Restore both files from the target
+branch, install the approved uv version, and repeat from the complete checkout.
+Do not hand-edit hashes, truncate a fetched lockfile, or accept a large diff
+merely because resolution succeeds.
+
+### Dependency changes
+
+Make dependency changes separately from a version-only release. State the
+intended packages and permitted version movement before running uv:
+
+```bash
+uv lock --upgrade-package <package>
+uv sync --locked --dev
+make validate
+```
+
+Review direct and transitive changes, package sources, hashes, platform wheels,
+and license or security implications. Broad `uv lock --upgrade` changes require
+an explicit dependency-refresh task and should not be hidden inside feature,
+documentation, or release commits.
+
+### Recovery and atomicity
+
+Keep the original branch commit as the rollback point. Build the candidate
+commit on a review branch, recheck that its parent is still the intended target,
+and never force-update `main`. If validation or review fails, abandon or repair
+the review branch; do not partially apply the manifest and lockfile as separate
+commits.
+
 ## Useful commands
 
 ```bash
