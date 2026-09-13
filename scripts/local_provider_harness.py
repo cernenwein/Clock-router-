@@ -35,8 +35,12 @@ def validate_local_url(value: str, *, allow_private_network: bool) -> str:
         raise ValueError(
             "non-loopback host requires --allow-private-network; use only a trusted LAN or overlay"
         ) from None
-    if allow_private_network and (address.is_private or address.is_link_local):
-        return value.rstrip("/")
+    if address.is_private or address.is_link_local:
+        if allow_private_network:
+            return value.rstrip("/")
+        raise ValueError(
+            "non-loopback host requires --allow-private-network; use only a trusted LAN or overlay"
+        )
     raise ValueError("public provider and gateway addresses are not permitted by this harness")
 
 
