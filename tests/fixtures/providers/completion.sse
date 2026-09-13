@@ -1,0 +1,6 @@
+data: {"id":"synthetic-chunk","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"SYNTHETIC_OK"},"finish_reason":null}]}
+
+data: {"id":"synthetic-chunk","object":"chat.completion.chunk","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: [DONE]
+

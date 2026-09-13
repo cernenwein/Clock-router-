@@ -329,7 +329,11 @@ async def test_invalid_upstream_json_is_sanitized(
     client: httpx.AsyncClient, auth_headers: dict[str, str]
 ) -> None:
     respx.post("http://host.docker.internal:1234/v1/chat/completions").mock(
-        return_value=httpx.Response(200, text="not-json")
+        return_value=httpx.Response(
+            200,
+            text="not-json",
+            headers={"content-type": "application/json"},
+        )
     )
 
     response = await client.post(
