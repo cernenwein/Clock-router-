@@ -12,10 +12,10 @@ def test_loopback_url_is_allowed() -> None:
 
 def test_private_network_requires_explicit_opt_in() -> None:
     with pytest.raises(ValueError, match="allow-private-network"):
-        validate_local_url("http://192.168.0.90:1234/v1", allow_private_network=False)
+        validate_local_url("http://provider.example:1234/v1", allow_private_network=False)
     assert (
-        validate_local_url("http://192.168.0.90:1234/v1", allow_private_network=True)
-        == "http://192.168.0.90:1234/v1"
+        validate_local_url("http://provider.example:1234/v1", allow_private_network=True)
+        == "http://provider.example:1234/v1"
     )
 
 

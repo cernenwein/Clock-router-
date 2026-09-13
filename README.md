@@ -104,15 +104,14 @@ uv run python scripts/local_provider_harness.py --provider ollama --list-only
 ```
 
 See [`docs/LOCAL_PROVIDER_HARNESS.md`](docs/LOCAL_PROVIDER_HARNESS.md) for
-loopback, LittleMac/NetBird, and full gateway examples. Live inference is
-operator-initiated and never runs in GitHub CI.
+loopback and full gateway examples. Live inference is operator-initiated and
+never runs in GitHub CI.
 
 ## OpenCode
 
 Configure an OpenAI-compatible provider with base URL
-`http://littlemac:4000/v1`, then expose the virtual models `clock/local` and
-`clock/auto`. Use the NetBird address rather than a public or general-LAN bind
-when accessing LittleMac remotely.
+`http://127.0.0.1:4000/v1`, then expose the virtual models `clock/local` and
+`clock/auto`.
 
 ## Development
 

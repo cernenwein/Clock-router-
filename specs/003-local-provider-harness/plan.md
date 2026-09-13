@@ -35,6 +35,8 @@ the real ASGI gateway boundary without contacting a live provider.
 | `docs/PYTHON_HARNESS.md` | Generic localhost coding-client workflow |
 | `examples/python_harness.py` | Reusable OpenAI SDK coding-harness client |
 | `tests/test_python_harness.py` | Offline SDK-to-gateway integration coverage |
+| `scripts/live_provider_acceptance.py` | Sanitized dual-provider live acceptance |
+| `tests/test_live_provider_acceptance.py` | Offline orchestration and redaction coverage |
 | `pyproject.toml` / `uv.lock` | OpenAI SDK development dependency |
 | workflow documents | Explain branch-first automated changes |
 
@@ -48,9 +50,11 @@ the exact provider model ID in the existing `config/models.yaml`.
 Unit-test URL eligibility and model selection. Exercise the OpenAI SDK reference
 client through the real FastAPI application with a mocked local upstream, and
 assert project scope, virtual-model input, physical-model rewrite, safe trace
-headers, and returned text. PR CI runs Ruff, the full parallel suite, Compose
-validation, and the hardened container test. Live provider checks remain manual
-acceptance evidence on the private model host.
+headers, returned text, streaming, timeout normalization, unavailable routes,
+and zero local budget usage. Unit-test the live runner with mocked providers;
+CI never invokes its CLI or contacts a live model. PR CI runs Ruff, the full
+parallel suite, Compose validation, and the hardened container test. Live
+provider checks remain manual acceptance evidence on the provider workstation.
 
 ## Risks and rollback
 

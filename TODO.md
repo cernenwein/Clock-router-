@@ -1,7 +1,7 @@
 # ClockRouter TODO
 
 Last reviewed: 2026-09-13  
-Current baseline: v0.2 hardening, 37 tests passing serially and in parallel
+Current baseline: v0.2 hardening, 57 tests passing serially and in parallel
 
 This is the cross-spec queue. Detailed requirements, design, and completion
 evidence belong in numbered `specs/` folders. An item moves to `Done` only after
@@ -59,8 +59,8 @@ its spec acceptance evidence passes.
 
 - [ ] **T-010: Harden the container.**
   Run as a non-root user, add a healthcheck, use a read-only filesystem where
-  practical, document writable paths, and test the Compose deployment on
-  LittleMac. Pin GitHub Actions to reviewed commit SHAs.
+  practical, document writable paths, and test the Compose deployment locally.
+  Pin GitHub Actions to reviewed commit SHAs.
 
 - [ ] **T-011: Add configuration and API contract fixtures.**
   Maintain valid/invalid configuration fixtures and sanitized OpenAI/LM Studio/
@@ -111,6 +111,7 @@ its spec acceptance evidence passes.
 - [x] Serial and parallel test framework with eight baseline tests.
 - [x] Spec-driven workflow, constitution, ADRs, CI, and ecosystem survey.
 - [x] Local pre-commit/pre-push validation and version-preservation guide.
+- [x] OpenAI SDK coding-harness reference client for the `clock/local` boundary.
 
 ## Current review focus
 
