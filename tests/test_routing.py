@@ -39,6 +39,7 @@ def test_auto_prefers_local() -> None:
     route = select_route(config(), "clock/auto", "public")
     assert route.name == "local"
     assert not route.cloud
+    assert route.adapter == "openai-compatible"
 
 
 def test_private_project_blocks_cloud() -> None:

@@ -4,7 +4,7 @@ import re
 import secrets
 import time
 import uuid
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Annotated
@@ -22,6 +22,7 @@ from clockrouter.accounting import (
     usd_to_microusd,
 )
 from clockrouter.config import Config, Settings, load_config
+from clockrouter.providers import ProviderAdapter, ProviderCall, default_adapters
 from clockrouter.routing import RoutingError, select_route
 from clockrouter.schemas import ChatCompletionRequest, error_payload
 
@@ -104,6 +105,7 @@ async def read_bounded_body(request: Request, limit: int) -> bytes | None:
 def create_app(
     runtime_settings: Settings | None = None,
     runtime_config: Config | None = None,
+    provider_adapters: Mapping[str, ProviderAdapter] | None = None,
 ) -> FastAPI:
     settings = runtime_settings or Settings()
 
@@ -112,12 +114,29 @@ def create_app(
         application.state.api_token = settings.validated_token()
         application.state.allowed_projects = settings.project_scope()
         application.state.config = runtime_config or load_config(settings.config_dir)
+        application.state.provider_adapters = (
+            default_adapters() if provider_adapters is None else dict(provider_adapters)
+        )
+        invalid_adapters = {
+            name
+            for name, adapter in application.state.provider_adapters.items()
+            if not isinstance(adapter, ProviderAdapter)
+        }
+        if invalid_adapters:
+            names = ", ".join(sorted(invalid_adapters))
+            raise TypeError(f"invalid provider adapters: {names}")
         unknown_scopes = (
             application.state.allowed_projects - application.state.config.projects.keys()
         )
         if unknown_scopes:
             names = ", ".join(sorted(unknown_scopes))
             raise ValueError(f"credential scope references unknown projects: {names}")
+        unavailable_adapters = {
+            model.adapter for model in application.state.config.models.values()
+        } - application.state.provider_adapters.keys()
+        if unavailable_adapters:
+            names = ", ".join(sorted(unavailable_adapters))
+            raise ValueError(f"unavailable provider adapters: {names}")
         application.state.settings = settings
         application.state.ledger = BudgetLedger(settings.database_path)
         application.state.client = httpx.AsyncClient(
@@ -220,11 +239,6 @@ def create_app(
                 request_id,
             )
 
-        upstream_body = body.model_dump(mode="json", exclude_none=True)
-        upstream_body["model"] = route.upstream_model
-        upstream_url = f"{route.base_url}/chat/completions"
-        headers = {"Content-Type": "application/json", "X-Request-ID": request_id}
-
         pricing = request.app.state.config.models[route.name].pricing
         if route.cloud:
             if pricing is None:
@@ -260,15 +274,18 @@ def create_app(
                     request_id,
                 )
 
+        adapter = request.app.state.provider_adapters[route.adapter]
+        provider_call = ProviderCall(
+            base_url=route.base_url,
+            upstream_model=route.upstream_model,
+            request_id=request_id,
+            payload=body.model_dump(mode="json", exclude_none=True),
+        )
         if body.stream:
-            return await stream_completion(
-                request, upstream_url, headers, upstream_body, route.name, request_id
-            )
+            return await stream_completion(request, adapter, provider_call, route.name, request_id)
 
         try:
-            upstream = await request.app.state.client.post(
-                upstream_url, headers=headers, json=upstream_body
-            )
+            upstream = await adapter.complete(request.app.state.client, provider_call)
         except httpx.TimeoutException:
             return api_error(
                 504, "Upstream model timed out", "upstream_error", "upstream_timeout", request_id
@@ -349,17 +366,13 @@ def create_app(
 
 async def stream_completion(
     request: Request,
-    upstream_url: str,
-    headers: dict[str, str],
-    upstream_body: dict,
+    adapter: ProviderAdapter,
+    provider_call: ProviderCall,
     route_name: str,
     request_id: str,
 ):
     try:
-        upstream_request = request.app.state.client.build_request(
-            "POST", upstream_url, headers=headers, json=upstream_body
-        )
-        upstream = await request.app.state.client.send(upstream_request, stream=True)
+        upstream = await adapter.stream(request.app.state.client, provider_call)
     except httpx.TimeoutException:
         return api_error(
             504, "Upstream model timed out", "upstream_error", "upstream_timeout", request_id

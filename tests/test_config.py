@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from pydantic import SecretStr, ValidationError
 
-from clockrouter.config import Config, Settings, load_config
+from clockrouter.config import Config, ModelConfig, Settings, load_config
 
 
 @pytest.mark.parametrize("token", [None, "", "change-me", "short"])
@@ -20,6 +20,17 @@ def test_repository_configuration_is_valid() -> None:
 
     assert config.default_project == "private"
     assert config.models["local-coder"].cloud is False
+    assert config.models["local-coder"].adapter == "openai-compatible"
+
+
+def test_model_adapter_defaults_to_openai_compatible() -> None:
+    model = ModelConfig(
+        provider="synthetic-provider",
+        model="synthetic-model",
+        base_url="http://provider.example/v1",
+    )
+
+    assert model.adapter == "openai-compatible"
 
 
 def test_unknown_virtual_target_is_rejected() -> None:
