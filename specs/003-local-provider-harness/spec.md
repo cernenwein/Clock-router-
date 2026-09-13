@@ -36,6 +36,12 @@ privacy-safe smoke test for LM Studio and Ollama.
   literals are denied.
 - R6: Harness output and errors contain no prompt, response, token, or secret.
 - R7: CI tests harness logic without contacting a live provider.
+- R8: A reference coding client uses the standard OpenAI Python SDK against
+  ClockRouter with `model="clock/local"` and returns assistant text without
+  requiring the caller to select or know the upstream provider model.
+- R9: An offline integration test proves the SDK request crosses the
+  ClockRouter API boundary, preserves project scoping, and is rewritten to the
+  configured local provider model.
 
 ## Acceptance scenarios
 
@@ -44,6 +50,8 @@ privacy-safe smoke test for LM Studio and Ollama.
 3. A running local provider can list models and complete a ClockRouter request.
 4. A public provider address is rejected before network access.
 5. CI completes with no local model server present.
+6. The Python reference client submits a coding prompt using `clock/local` and
+   receives text while ClockRouter reports the selected route and request ID.
 
 ## Security, privacy, and cost
 
@@ -58,10 +66,13 @@ weights or performs inference, so the change adds only ordinary CI minutes.
 |---|---|---|
 | 2026-09-13 | `pytest tests/test_local_provider_harness.py` | Passed in PR #6 (43-test suite) |
 | 2026-09-13 | Pull-request CI | Passed in PR #6, run 118 |
-| 2026-09-13 | Live LM Studio round trip | Pending on LittleMac |
-| 2026-09-13 | Live Ollama round trip | Pending on LittleMac |
+| 2026-09-13 | Live LM Studio round trip | Pending on private model host |
+| 2026-09-13 | Live Ollama round trip | Pending on private model host |
+| 2026-09-13 | `pytest tests/test_python_harness.py -q` | Passed, 5 tests |
+| 2026-09-13 | `make validate && uv run pytest` | Passed, 48 tests parallel and serial |
 
 ## Change log
 
 - 2026-09-13: Spec activated; implementation prepared on a review branch.
 - 2026-09-13: Repaired push-script and Markdown escaping; CI now executes the push gate.
+- 2026-09-13: Added the coding-harness API boundary to Spec 003 acceptance.
