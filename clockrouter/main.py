@@ -1,8 +1,10 @@
 import asyncio
 import json
+import re
 import secrets
 import time
 import uuid
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Annotated
@@ -34,6 +36,10 @@ class AuthenticationError(Exception):
         self.request_id = request_id
 
 
+_DONE_EVENT = re.compile(rb"(?:^|\r?\n)data:[ \t]*\[DONE\][ \t]*\r?\n\r?\n")
+_DONE_SCAN_TAIL_BYTES = 64
+
+
 def api_error(
     status_code: int,
     message: str,
@@ -46,6 +52,42 @@ def api_error(
         content=error_payload(message, error_type, code),
         headers={"X-ClockRouter-Request-ID": request_id},
     )
+
+
+def has_media_type(response: httpx.Response, expected: str) -> bool:
+    content_type = response.headers.get("content-type", "")
+    media_type = content_type.partition(";")[0].strip().lower()
+    if expected == "application/json":
+        return media_type == expected or media_type.endswith("+json")
+    return media_type == expected
+
+
+def stream_error_event(message: str, code: str) -> bytes:
+    event = error_payload(message, "upstream_error", code)
+    return f"data: {json.dumps(event, separators=(',', ':'))}\n\ndata: [DONE]\n\n".encode()
+
+
+async def proxy_upstream_stream(upstream: httpx.Response) -> AsyncIterator[bytes]:
+    done = False
+    scan_tail = b""
+    try:
+        async for chunk in upstream.aiter_bytes():
+            scan_window = scan_tail + chunk
+            if _DONE_EVENT.search(scan_window):
+                done = True
+            scan_tail = scan_window[-_DONE_SCAN_TAIL_BYTES:]
+            yield chunk
+        if not done:
+            yield stream_error_event(
+                "Upstream stream ended before completion",
+                "upstream_stream_incomplete",
+            )
+    except httpx.HTTPError:
+        yield stream_error_event("Upstream stream failed", "upstream_stream_failed")
+    except asyncio.CancelledError:
+        raise
+    finally:
+        await upstream.aclose()
 
 
 async def read_bounded_body(request: Request, limit: int) -> bytes | None:
@@ -247,6 +289,14 @@ def create_app(
                 "upstream_rejected",
                 request_id,
             )
+        if not has_media_type(upstream, "application/json"):
+            return api_error(
+                502,
+                "Upstream model returned an invalid response",
+                "upstream_error",
+                "invalid_upstream_response",
+                request_id,
+            )
         try:
             content = upstream.json()
         except ValueError:
@@ -257,8 +307,16 @@ def create_app(
                 "invalid_upstream_response",
                 request_id,
             )
+        if not isinstance(content, dict):
+            return api_error(
+                502,
+                "Upstream model returned an invalid response",
+                "upstream_error",
+                "invalid_upstream_response",
+                request_id,
+            )
 
-        usage = content.get("usage") if isinstance(content, dict) else None
+        usage = content.get("usage")
         if route.cloud and pricing is not None and isinstance(usage, dict):
             prompt_tokens = usage.get("prompt_tokens")
             completion_tokens = usage.get("completion_tokens")
@@ -323,20 +381,19 @@ async def stream_completion(
             "upstream_rejected",
             request_id,
         )
+    if not has_media_type(upstream, "text/event-stream"):
+        await upstream.aclose()
+        return api_error(
+            502,
+            "Upstream model returned an invalid response",
+            "upstream_error",
+            "invalid_upstream_response",
+            request_id,
+        )
 
     async def chunks():
-        try:
-            async for chunk in upstream.aiter_bytes():
-                yield chunk
-        except httpx.HTTPError:
-            event = error_payload(
-                "Upstream stream failed", "upstream_error", "upstream_stream_failed"
-            )
-            yield f"data: {json.dumps(event, separators=(',', ':'))}\n\ndata: [DONE]\n\n".encode()
-        except asyncio.CancelledError:
-            raise
-        finally:
-            await upstream.aclose()
+        async for chunk in proxy_upstream_stream(upstream):
+            yield chunk
 
     return StreamingResponse(
         chunks(),

@@ -1,7 +1,7 @@
 # ClockRouter TODO
 
 Last reviewed: 2026-09-13  
-Current baseline: v0.2 hardening, 57 tests passing serially and in parallel
+Current baseline: v0.2 hardening, 74 tests passing serially and in parallel
 
 This is the cross-spec queue. Detailed requirements, design, and completion
 evidence belong in numbered `specs/` folders. An item moves to `Done` only after
@@ -42,7 +42,7 @@ its spec acceptance evidence passes.
 
 ## P1 — reliability and operational safety
 
-- [ ] **T-007: Expand failure-path and cancellation tests.**
+- [x] **T-007: Expand failure-path and cancellation tests.**
   Cover upstream 4xx/5xx, timeouts, connection refusal, non-JSON responses,
   partial SSE, client cancellation, upstream cancellation, and guaranteed
   response closure. Run each serially and with `pytest-xdist`.
@@ -62,7 +62,7 @@ its spec acceptance evidence passes.
   practical, document writable paths, and test the Compose deployment locally.
   Pin GitHub Actions to reviewed commit SHAs.
 
-- [ ] **T-011: Add configuration and API contract fixtures.**
+- [x] **T-011: Add configuration and API contract fixtures.**
   Maintain valid/invalid configuration fixtures and sanitized OpenAI/LM Studio/
   Ollama response fixtures. Verify headers, status mapping, tool calls, usage,
   and SSE framing without requiring live providers in CI.
@@ -112,11 +112,12 @@ its spec acceptance evidence passes.
 - [x] Spec-driven workflow, constitution, ADRs, CI, and ecosystem survey.
 - [x] Local pre-commit/pre-push validation and version-preservation guide.
 - [x] OpenAI SDK coding-harness reference client for the `clock/local` boundary.
+- [x] Sanitized provider contracts and streaming lifecycle enforcement.
 
 ## Current review focus
 
 - Transport logic remains concentrated in the endpoint rather than provider adapters.
-- Failure-path and cancellation coverage is incomplete.
 - Structured telemetry, a coverage threshold, and a static type-check gate remain pending.
+- Provider transport still needs extraction behind typed adapters in Spec 005.
 - SQLite accounting exists, but schema migrations and lifecycle policy are not yet defined.
 - Spec 003 is active for branch-first validation and local-provider harness preparation.

@@ -1,0 +1,22 @@
+{
+  "id": "synthetic-ollama-completion",
+  "object": "chat.completion",
+  "created": 2,
+  "model": "synthetic-local-model",
+  "system_fingerprint": "synthetic-fingerprint",
+  "choices": [
+    {
+      "index": 0,
+      "finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "SYNTHETIC_OK"
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 5,
+    "completion_tokens": 3,
+    "total_tokens": 8
+  }
+}
