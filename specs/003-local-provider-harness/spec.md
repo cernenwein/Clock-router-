@@ -56,11 +56,12 @@ weights or performs inference, so the change adds only ordinary CI minutes.
 
 | Date | Command/scenario | Result |
 |---|---|---|
-| 2026-09-13 | `pytest tests/test_local_provider_harness.py` | Pending |
-| 2026-09-13 | Pull-request CI | Pending |
+| 2026-09-13 | `pytest tests/test_local_provider_harness.py` | Passed in PR #6 (43-test suite) |
+| 2026-09-13 | Pull-request CI | Passed in PR #6, run 118 |
 | 2026-09-13 | Live LM Studio round trip | Pending on LittleMac |
 | 2026-09-13 | Live Ollama round trip | Pending on LittleMac |
 
 ## Change log
 
 - 2026-09-13: Spec activated; implementation prepared on a review branch.
+- 2026-09-13: Repaired push-script and Markdown escaping; CI now executes the push gate.
