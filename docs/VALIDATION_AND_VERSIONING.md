@@ -30,15 +30,17 @@ files automatically; a failed check leaves the staged change intact for repair.
 
 ### Before `git push`
 
-- `pytest -n 2`
+- `uv lock --check`
+- `pytest -n ${CLOCKROUTER_TEST_WORKERS:-2}`
 
 Two workers avoid excessive process-startup overhead on the small local suite.
-Developers may choose more workers manually with `pytest -n auto`.
+Set `CLOCKROUTER_TEST_WORKERS=auto` to use all available workers.
 
 ### In GitHub Actions
 
-CI installs exactly `uv.lock`, checks Ruff formatting and lint, and runs the
-parallel test suite. GitHub is the authoritative result because local hooks can
+CI installs exactly `uv.lock`, checks Ruff formatting and lint, and then runs
+`scripts/check-push.sh` with automatic worker selection. This executes the same
+lock and test gate used locally. GitHub is authoritative because local hooks can
 be skipped or modified.
 
 ## Push paths

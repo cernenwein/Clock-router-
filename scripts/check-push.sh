@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
-workers="\${CLOCKROUTER_TEST_WORKERS:-2}"
+workers="${CLOCKROUTER_TEST_WORKERS:-2}"
 
 echo "Checking lockfile consistency..."
 if ! uv lock --check; then
@@ -12,6 +12,6 @@ if ! uv lock --check; then
   exit 1
 fi
 
-echo "Running tests with \${workers} workers..."
+echo "Running tests with ${workers} workers..."
 uv run pytest -n "$workers"
 echo "Local push validation passed. Remote branch CI will verify the same commit."

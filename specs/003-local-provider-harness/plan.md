@@ -5,7 +5,7 @@
 - Local-first behavior: only local or explicitly trusted private endpoints are eligible.
 - Privacy enforcement: fixed synthetic prompt; no content or secrets in output.
 - Budget enforcement: local routes bypass cloud accounting.
-- API compatibility: probe \`/v1/models\` and \`/v1/chat/completions\`.
+- API compatibility: probe `/v1/models` and `/v1/chat/completions`.
 - Explainability: report provider, selected model, route, request ID, and status.
 
 ## Design
@@ -19,18 +19,18 @@ giving review branches an independent result before a pull request is opened.
 
 | Path/interface | Change |
 |---|---|
-| \`scripts/check-push.sh\` | Deterministic, diagnosable pre-push gate |
-| \`scripts/local_provider_harness.py\` | Local provider and gateway smoke test |
-| \`tests/test_local_provider_harness.py\` | Offline harness logic coverage |
-| \`.pre-commit-config.yaml\` | Delegate pre-push validation to the script |
-| \`.github/workflows/ci.yml\` | Validate every pushed branch and pull request |
-| \`docs/LOCAL_PROVIDER_HARNESS.md\` | LM Studio/Ollama operator workflow |
+| `scripts/check-push.sh` | Deterministic, diagnosable pre-push gate |
+| `scripts/local_provider_harness.py` | Local provider and gateway smoke test |
+| `tests/test_local_provider_harness.py` | Offline harness logic coverage |
+| `.pre-commit-config.yaml` | Delegate pre-push validation to the script |
+| `.github/workflows/ci.yml` | Validate every pushed branch and pull request |
+| `docs/LOCAL_PROVIDER_HARNESS.md` | LM Studio/Ollama operator workflow |
 | workflow documents | Explain branch-first automated changes |
 
 ## Configuration and migration
 
 No production configuration or database migration is required. Operators set
-the exact provider model ID in the existing \`config/models.yaml\`.
+the exact provider model ID in the existing `config/models.yaml`.
 
 ## Test strategy
 
