@@ -34,19 +34,16 @@ uv run python scripts/local_provider_harness.py \
   --provider-model '<pulled Ollama model id>'
 ```
 
-For LittleMac over a trusted LAN or NetBird overlay, specify both URLs and opt
-in to private-network access:
+Run both providers and the provider-agnostic Python client with one command:
 
 ```bash
-uv run python scripts/local_provider_harness.py \
-  --provider lmstudio \
-  --provider-url http://192.168.0.90:1234/v1 \
-  --gateway-url http://192.168.0.90:4000 \
-  --allow-private-network
+uv run python scripts/live_provider_acceptance.py
 ```
 
-The flag permits private IPs or explicitly named trusted-network hosts; public
-IP literals remain denied. Do not expose either service to the public internet.
+Use `--lmstudio-model` or `--ollama-model` to select an exact loaded model. Run
+this acceptance command directly on the machine hosting the providers: it
+rejects non-loopback endpoints. Output contains provider labels, check names,
+and status only.
 
 ## CI boundary
 

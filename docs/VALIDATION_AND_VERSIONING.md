@@ -172,6 +172,6 @@ uv run pre-commit run --hook-stage pre-push --all-files
 
 Local checks cost nothing beyond local compute. GitHub-hosted CI consumes the
 repository owner's included Actions allowance for a private repository.
-Self-hosting on LittleMac is unnecessary at this scale and would let pull-request
-code execute inside the private network. Reconsider only if hosted usage exceeds
-the allowance and the runner can be isolated safely.
+Self-hosting on a local workstation is unnecessary at this scale and would let
+pull-request code execute outside GitHub's hosted environment. Reconsider only
+if hosted usage exceeds the allowance and the runner can be isolated safely.

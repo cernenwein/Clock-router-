@@ -6,7 +6,7 @@ import httpx
 import pytest
 import respx
 from conftest import TEST_TOKEN
-from openai import PermissionDeniedError
+from openai import APITimeoutError, BadRequestError, PermissionDeniedError
 from pydantic import SecretStr
 
 with warnings.catch_warnings():
@@ -32,7 +32,8 @@ def gateway_app(tmp_path: Path):
 
 
 @respx.mock
-def test_prompt_code_crosses_gateway_and_returns_text(tmp_path: Path) -> None:
+@pytest.mark.parametrize("virtual_model", ["clock/local", "clock/auto"])
+def test_prompt_code_crosses_gateway_and_returns_text(tmp_path: Path, virtual_model: str) -> None:
     upstream = respx.post("http://host.docker.internal:1234/v1/chat/completions").mock(
         return_value=httpx.Response(
             200,
@@ -55,24 +56,60 @@ def test_prompt_code_crosses_gateway_and_returns_text(tmp_path: Path) -> None:
         )
     )
 
-    with TestClient(gateway_app(tmp_path)) as gateway:
+    app = gateway_app(tmp_path)
+    with TestClient(app) as gateway:
         harness = ClockRouterHarness(
             api_key=TEST_TOKEN,
             base_url="http://testserver/v1",
+            model=virtual_model,
             http_client=gateway,
         )
         result = harness.prompt_code("Write a tiny answer function")
         trace = harness.last_trace
+        charged = app.state.ledger.total_microusd()
 
     assert result == "def answer():\n    return 42"
     assert trace is not None
     assert trace.route == "local-coder"
     assert trace.request_id
     assert trace.latency_ms is not None
+    assert charged == 0
     assert upstream.called
     sent = json.loads(upstream.calls.last.request.content)
     assert sent["model"] == "qwen-coder"
     assert sent["messages"][-1]["content"] == "Write a tiny answer function"
+
+
+@respx.mock
+def test_stream_code_crosses_gateway_and_yields_text(tmp_path: Path) -> None:
+    event = (
+        b'data: {"id":"chunk-1","object":"chat.completion.chunk","created":1,'
+        b'"model":"qwen-coder","choices":[{"index":0,"delta":{"content":"answer"},'
+        b'"finish_reason":null}]}\n\n'
+        b'data: {"id":"chunk-1","object":"chat.completion.chunk","created":1,'
+        b'"model":"qwen-coder","choices":[{"index":0,"delta":{"content":"()"},'
+        b'"finish_reason":"stop"}]}\n\ndata: [DONE]\n\n'
+    )
+    respx.post("http://host.docker.internal:1234/v1/chat/completions").mock(
+        return_value=httpx.Response(
+            200,
+            content=event,
+            headers={"content-type": "text/event-stream"},
+        )
+    )
+
+    app = gateway_app(tmp_path)
+    with TestClient(app) as gateway:
+        harness = ClockRouterHarness(
+            api_key=TEST_TOKEN,
+            base_url="http://testserver/v1",
+            http_client=gateway,
+        )
+        result = "".join(harness.stream_code("Stream a function name"))
+        charged = app.state.ledger.total_microusd()
+
+    assert result == "answer()"
+    assert charged == 0
 
 
 @respx.mock
@@ -92,6 +129,41 @@ def test_project_scope_is_enforced_before_provider_dispatch(tmp_path: Path) -> N
             harness.prompt_code("This request must be denied")
 
     assert not upstream.called
+
+
+@respx.mock
+def test_unavailable_virtual_model_is_reported_without_dispatch(tmp_path: Path) -> None:
+    upstream = respx.post("http://host.docker.internal:1234/v1/chat/completions").mock(
+        return_value=httpx.Response(200, json={"choices": []})
+    )
+
+    with TestClient(gateway_app(tmp_path)) as gateway:
+        harness = ClockRouterHarness(
+            api_key=TEST_TOKEN,
+            base_url="http://testserver/v1",
+            model="clock/missing",
+            http_client=gateway,
+        )
+        with pytest.raises(BadRequestError):
+            harness.prompt_code("This route must not exist")
+
+    assert not upstream.called
+
+
+def test_timeout_is_exposed_as_openai_sdk_error() -> None:
+    def timeout(request: httpx.Request) -> httpx.Response:
+        raise httpx.ReadTimeout("synthetic timeout", request=request)
+
+    harness = ClockRouterHarness(
+        api_key=TEST_TOKEN,
+        timeout=0.01,
+        http_client=httpx.Client(transport=httpx.MockTransport(timeout)),
+    )
+    try:
+        with pytest.raises(APITimeoutError):
+            harness.prompt_code("This request times out")
+    finally:
+        harness.close()
 
 
 def test_harness_requires_a_gateway_token(monkeypatch: pytest.MonkeyPatch) -> None:

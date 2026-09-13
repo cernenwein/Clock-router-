@@ -42,6 +42,11 @@ privacy-safe smoke test for LM Studio and Ollama.
 - R9: An offline integration test proves the SDK request crosses the
   ClockRouter API boundary, preserves project scoping, and is rewritten to the
   configured local provider model.
+- R10: A single loopback-only live-acceptance command checks LM Studio and
+  Ollama independently without printing endpoints, credentials, prompts, or
+  response content.
+- R11: Reference-client tests cover streaming, `clock/auto`, unavailable routes,
+  timeouts, and proof that local requests consume zero cloud budget.
 
 ## Acceptance scenarios
 
@@ -52,6 +57,8 @@ privacy-safe smoke test for LM Studio and Ollama.
 5. CI completes with no local model server present.
 6. The Python reference client submits a coding prompt using `clock/local` and
    receives text while ClockRouter reports the selected route and request ID.
+7. The live runner verifies direct provider compatibility and both local virtual
+   routes for LM Studio and Ollama, while emitting only sanitized pass/fail data.
 
 ## Security, privacy, and cost
 
@@ -66,13 +73,17 @@ weights or performs inference, so the change adds only ordinary CI minutes.
 |---|---|---|
 | 2026-09-13 | `pytest tests/test_local_provider_harness.py` | Passed in PR #6 (43-test suite) |
 | 2026-09-13 | Pull-request CI | Passed in PR #6, run 118 |
-| 2026-09-13 | Live LM Studio round trip | Pending on private model host |
-| 2026-09-13 | Live Ollama round trip | Pending on private model host |
+| 2026-09-13 | Live LM Studio round trip | Pending on provider workstation |
+| 2026-09-13 | Live Ollama round trip | Pending on provider workstation |
 | 2026-09-13 | `pytest tests/test_python_harness.py -q` | Passed, 5 tests |
 | 2026-09-13 | `make validate && uv run pytest` | Passed, 48 tests parallel and serial |
+| 2026-09-13 | Focused harness and acceptance suite | Passed, 20 tests |
+| 2026-09-13 | Machine/network identifier scan | No tracked private identifiers found |
+| 2026-09-13 | `make validate && uv run pytest -q` | Passed, 57 tests parallel and serial |
 
 ## Change log
 
 - 2026-09-13: Spec activated; implementation prepared on a review branch.
 - 2026-09-13: Repaired push-script and Markdown escaping; CI now executes the push gate.
 - 2026-09-13: Added the coding-harness API boundary to Spec 003 acceptance.
+- 2026-09-13: Added a sanitized dual-provider live runner and expanded offline acceptance.

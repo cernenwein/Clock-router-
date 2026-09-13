@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Self
 
@@ -31,6 +32,7 @@ class ClockRouterHarness:
         model: str = "clock/local",
         project: str = "private",
         timeout: float = 120,
+        max_retries: int = 0,
         http_client: httpx.Client | None = None,
     ) -> None:
         token = api_key or os.getenv("CLOCKROUTER_API_TOKEN")
@@ -49,6 +51,7 @@ class ClockRouterHarness:
             base_url=f"{base_url.rstrip('/')}/",
             default_headers={"X-ClockRouter-Project": project},
             timeout=timeout,
+            max_retries=max_retries,
             http_client=http_client,
         )
 
@@ -56,15 +59,19 @@ class ClockRouterHarness:
         self,
         prompt: str,
         *,
+        model: str | None = None,
         system_prompt: str = "You are a careful software engineering assistant.",
         max_tokens: int = 1024,
     ) -> str:
         """Return assistant text while ClockRouter handles provider selection."""
         if not prompt.strip():
             raise ValueError("prompt must not be blank")
+        requested_model = model or self.model
+        if not requested_model.startswith("clock/"):
+            raise ValueError("model must be a ClockRouter virtual model")
 
         raw_response = self._client.chat.completions.with_raw_response.create(
-            model=self.model,
+            model=requested_model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
@@ -82,6 +89,37 @@ class ClockRouterHarness:
         if not response.choices or response.choices[0].message.content is None:
             raise RuntimeError("ClockRouter response did not contain assistant text")
         return response.choices[0].message.content
+
+    def stream_code(
+        self,
+        prompt: str,
+        *,
+        model: str | None = None,
+        system_prompt: str = "You are a careful software engineering assistant.",
+        max_tokens: int = 1024,
+    ) -> Iterator[str]:
+        """Yield assistant-text fragments from ClockRouter's streaming API."""
+        if not prompt.strip():
+            raise ValueError("prompt must not be blank")
+        requested_model = model or self.model
+        if not requested_model.startswith("clock/"):
+            raise ValueError("model must be a ClockRouter virtual model")
+
+        stream = self._client.chat.completions.create(
+            model=requested_model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=max_tokens,
+            stream=True,
+        )
+        try:
+            for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        finally:
+            stream.close()
 
     def close(self) -> None:
         self._client.close()
