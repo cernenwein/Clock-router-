@@ -91,7 +91,8 @@ its spec acceptance evidence passes.
 
 - [ ] **T-017: Add Ollama and configurable LM Studio adapters.**
   Probe observed capabilities rather than trusting labels and keep local
-  endpoints on explicit allowlists.
+  endpoints on explicit allowlists. Spec 003 establishes the offline-safe
+  operator harness and branch validation needed before adapter extraction.
 
 ## P3 — evidence-based routing
 
@@ -117,3 +118,4 @@ its spec acceptance evidence passes.
 - Failure-path and cancellation coverage is incomplete.
 - Structured telemetry, a coverage threshold, and a static type-check gate remain pending.
 - SQLite accounting exists, but schema migrations and lifecycle policy are not yet defined.
+- Spec 003 is active for branch-first validation and local-provider harness preparation.

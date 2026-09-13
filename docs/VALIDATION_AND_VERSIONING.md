@@ -41,6 +41,22 @@ CI installs exactly `uv.lock`, checks Ruff formatting and lint, and runs the
 parallel test suite. GitHub is the authoritative result because local hooks can
 be skipped or modified.
 
+## Push paths
+
+All changes use the same branch-first contract:
+
+| Path | Local gate | Remote gate | Expected action |
+|---|---|---|---|
+| Developer push | `scripts/check-push.sh` | Branch CI | Repair failures, then push |
+| Automated/agent change | Review branch | Branch CI and PR CI | Never force or write directly to `main` |
+| Pull request | Optional local rerun | Required CI | Merge only after green checks |
+| Emergency hook bypass | Documented exception | Required CI | Repair tooling; do not merge broken code |
+
+A failed local hook is a validation result, not a Git transport failure. Run
+`bash scripts/check-push.sh` directly for the same diagnostic output. Review
+branches are the supported solution when a direct default-branch write is
+refused by an automation safety boundary; do not weaken that boundary.
+
 ## Daily feature workflow
 
 ```bash

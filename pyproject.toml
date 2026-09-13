@@ -34,3 +34,6 @@ asyncio_mode = "auto"
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
+[tool.uv]
+required-version = "==0.12.11"
