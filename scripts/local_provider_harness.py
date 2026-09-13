@@ -43,7 +43,7 @@ def validate_local_url(value: str, *, allow_private_network: bool) -> str:
 def select_model(payload: dict[str, Any], requested: str | None) -> str:
     data = payload.get("data")
     if not isinstance(data, list):
-        raise ValueError("provider /v1/models response does not contain a data list")
+        raise TypeError("provider /v1/models response does not contain a data list")
     model_ids = [
         item.get("id")
         for item in data
@@ -139,7 +139,7 @@ def main() -> int:
     )
     choices = result.get("choices")
     if not isinstance(choices, list):
-        raise RuntimeError("gateway response does not contain a choices list")
+        raise TypeError("gateway response does not contain a choices list")
     print(
         json.dumps(
             {
@@ -157,6 +157,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (RuntimeError, ValueError) as exc:
+    except (RuntimeError, TypeError, ValueError) as exc:
         print(f"harness failed: {exc}", file=sys.stderr)
         raise SystemExit(1) from exc
