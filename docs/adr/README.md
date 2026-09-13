@@ -8,3 +8,4 @@ Current records:
 
 - [ADR-001: Modular monolith](001-modular-monolith.md)
 - [ADR-002: Deterministic privacy-first routing](002-deterministic-privacy-first-routing.md)
+- [ADR-003: Provider adapters by protocol](003-provider-adapters-by-protocol.md)

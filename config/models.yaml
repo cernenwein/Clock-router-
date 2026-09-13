@@ -1,6 +1,7 @@
 models:
   local-coder:
     provider: lmstudio
+    adapter: openai-compatible
     model: qwen-coder
     base_url: http://host.docker.internal:1234/v1
     cloud: false

@@ -44,6 +44,7 @@ class PriceConfig(BaseModel):
 class ModelConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
     provider: str = Field(min_length=1)
+    adapter: str = Field(default="openai-compatible", min_length=1)
     model: str = Field(min_length=1)
     base_url: HttpUrl
     cloud: bool = False

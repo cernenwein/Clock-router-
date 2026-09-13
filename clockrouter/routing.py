@@ -11,6 +11,7 @@ class RoutingError(ValueError):
 class Route:
     name: str
     provider: str
+    adapter: str
     upstream_model: str
     base_url: str
     cloud: bool
@@ -50,6 +51,7 @@ def select_route(config: Config, requested_model: str, project: str) -> Route:
     return Route(
         name=target,
         provider=model.provider,
+        adapter=model.adapter,
         upstream_model=model.model,
         base_url=str(model.base_url).rstrip("/"),
         cloud=cloud,

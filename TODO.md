@@ -1,7 +1,7 @@
 # ClockRouter TODO
 
 Last reviewed: 2026-09-13  
-Current baseline: v0.2 hardening, 74 tests passing serially and in parallel
+Current baseline: v0.2 hardening, 83 tests passing serially and in parallel
 
 This is the cross-spec queue. Detailed requirements, design, and completion
 evidence belong in numbered `specs/` folders. An item moves to `Done` only after
@@ -47,7 +47,7 @@ its spec acceptance evidence passes.
   partial SSE, client cancellation, upstream cancellation, and guaranteed
   response closure. Run each serially and with `pytest-xdist`.
 
-- [ ] **T-008: Introduce provider adapters.**
+- [x] **T-008: Introduce provider adapters.**
   Move transport-specific behavior out of `main.py` behind a typed provider
   protocol. Routing selects capabilities/models; it must not branch on provider
   names.
@@ -113,11 +113,11 @@ its spec acceptance evidence passes.
 - [x] Local pre-commit/pre-push validation and version-preservation guide.
 - [x] OpenAI SDK coding-harness reference client for the `clock/local` boundary.
 - [x] Sanitized provider contracts and streaming lifecycle enforcement.
+- [x] Typed, protocol-selected provider adapters with fail-closed startup validation.
 
 ## Current review focus
 
-- Transport logic remains concentrated in the endpoint rather than provider adapters.
 - Structured telemetry, a coverage threshold, and a static type-check gate remain pending.
-- Provider transport still needs extraction behind typed adapters in Spec 005.
+- Provider-specific capability probing remains pending for local adapters.
 - SQLite accounting exists, but schema migrations and lifecycle policy are not yet defined.
 - Spec 003 is active for branch-first validation and local-provider harness preparation.
