@@ -30,8 +30,10 @@ jobs:
         run: uv run ruff format --check .
       - name: Lint
         run: uv run ruff check .
-      - name: Test
-        run: uv run pytest -n auto
+      - name: Validate push gate
+        env:
+          CLOCKROUTER_TEST_WORKERS: auto
+        run: bash scripts/check-push.sh
 
   container:
     runs-on: ubuntu-latest
