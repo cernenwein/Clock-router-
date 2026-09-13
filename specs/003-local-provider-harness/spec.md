@@ -56,7 +56,7 @@ weights or performs inference, so the change adds only ordinary CI minutes.
 
 | Date | Command/scenario | Result |
 |---|---|---|
-| 2026-09-13 | \`pytest tests/test_local_provider_harness.py\` | Pending |
+| 2026-09-13 | `pytest tests/test_local_provider_harness.py` | Pending |
 | 2026-09-13 | Pull-request CI | Pending |
 | 2026-09-13 | Live LM Studio round trip | Pending on LittleMac |
 | 2026-09-13 | Live Ollama round trip | Pending on LittleMac |
